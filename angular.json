@@ -84,21 +84,9 @@
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular-builders/jest:run",
           "options": {
-            "main": "projects/forms-playground/src/test.ts",
-            "polyfills": "projects/forms-playground/src/polyfills.ts",
-            "tsConfig": "projects/forms-playground/tsconfig.spec.json",
-            "karmaConfig": "projects/forms-playground/karma.conf.js",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              "projects/forms-playground/src/favicon.ico",
-              "projects/forms-playground/src/assets"
-            ],
-            "styles": [
-              "projects/forms-playground/src/styles.scss"
-            ],
-            "scripts": []
+            "no-cache": true
           }
         }
       }
@@ -125,11 +113,9 @@
           "defaultConfiguration": "production"
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular-builders/jest:run",
           "options": {
-            "main": "projects/custom-form-controls/src/test.ts",
-            "tsConfig": "projects/custom-form-controls/tsconfig.spec.json",
-            "karmaConfig": "projects/custom-form-controls/karma.conf.js"
+            "no-cache": true
           }
         }
       }
