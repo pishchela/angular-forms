@@ -1,14 +1,17 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
+import { FooterComponent } from './core/footer/footer.component';
+import { HeaderComponent } from './core/header/header.component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   standalone: true,
-  imports: [RouterModule, CommonModule]
+  imports: [RouterModule, HeaderComponent, FooterComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent {
-  title = 'forms-playground';
+  constructor(public title: Title) {}
 }

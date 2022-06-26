@@ -1,1 +1,33 @@
 /* You can add global styles to this file, and also import other style files */
+body, html, p, h1, h2, h3, h4, h5, span {
+  padding: 0;
+  margin: 0;
+}
+body {
+  font-family: 'Poppins';
+  background-color: var(--color-background);
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+:root {
+  --color-primary: #004859;
+  --color-accent: #ff8888;
+  --color-background: #eceff1;
+  --color-text: #263238;
+  --color-text-light: #607d8b;
+
+  --height-header: 64px;
+  --height-footer: 48px;
+  --border-radius: 10px;
+
+  --spacing-step: 8px;
+
+  --font-size-h1: 34px;
+}
