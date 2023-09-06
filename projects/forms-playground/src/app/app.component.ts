@@ -13,5 +13,6 @@ import { HeaderComponent } from './core/header/header.component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent {
+  public copyrightYear: number = new Date().getFullYear();
   constructor(public title: Title) {}
 }

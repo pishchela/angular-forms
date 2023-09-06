@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -11,8 +11,14 @@ import { CommonModule } from '@angular/common';
 })
 export class FooterComponent {
 
-  get year() {
-    return new Date().getFullYear();
+  @Input() year!: number
+
+  @Output() yearChange: EventEmitter<number> = new EventEmitter<number>();
+
+
+  @HostListener('click')
+  onClick(): void {
+    this.yearChange.emit(this.year + 1);
   }
 
 }
