@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormArray, FormControl, FormGroup, FormRecord, ReactiveFormsModule } from "@angular/forms";
+import { FormArray, FormBuilder, FormControl, FormGroup, FormRecord, ReactiveFormsModule } from "@angular/forms";
 import { Observable, tap } from 'rxjs';
 import { UserSkillsService } from '../../../core/user-skills.service';
 
@@ -28,23 +28,26 @@ export class ReactiveFormsPageComponent implements OnInit {
   years = this.getYears;
   skills$!: Observable<string[]>;
 
-  public form = new FormGroup({
-    firstName: new FormControl<string>('Dmytro', { nonNullable: true }),
-    lastName: new FormControl('Mezhenskyi'),
-    nickname: new FormControl(''),
-    email: new FormControl('dmytro@decodedfrontend.io'),
-    yearOfBirth: new FormControl(this.years[this.years.length - 1], { nonNullable: true }),
-    passport: new FormControl(''),
-    address: new FormGroup<Address>({
-      fullAddress: new FormControl('', { nonNullable: true }),
+  public form = this.fb.group({
+    firstName: 'Dmytro',
+    lastName: 'Mezhenskyi',
+    nickname: '',
+    email: 'dmytro@decodedfrontend.io',
+    yearOfBirth: this.fb.nonNullable.control(this.years[this.years.length - 1]),
+    passport: '',
+    address: this.fb.nonNullable.group({
+      fullAddress: '',
+      city: '',
+      postCode: '',
       // city: new FormControl('', { nonNullable: true }),
       // postCode: new FormControl(0, { nonNullable: true }),
     }),
-    phones: new FormArray([
+    phones: this.fb.array([
       this._phoneFormGroup,
     ]),
     // skills: new FormGroup<{ [key: string]: FormControl<boolean> }>({}),
     skills: new FormRecord<FormControl<boolean>>({}),
+    // since Angular 14.2 -> this.fb.record<boolean>
   });
 
 
@@ -53,7 +56,7 @@ export class ReactiveFormsPageComponent implements OnInit {
     return Array(now - (now - 40)).fill('').map((_, idx) => now - idx);
   }
 
-  constructor(private userSkills: UserSkillsService) { }
+  constructor(private userSkills: UserSkillsService, private fb: FormBuilder) { }
 
   ngOnInit(): void {
     this.skills$ = this.userSkills.getSkills()
@@ -61,8 +64,8 @@ export class ReactiveFormsPageComponent implements OnInit {
         tap((skills) => this._buildSkillsControls (skills)),
       );
 
-    this.form.controls.address.addControl('city', new FormControl())
-    this.form.controls.address.addControl('postCode', new FormControl())
+    // this.form.controls.address.addControl('city', new FormControl())
+    // this.form.controls.address.addControl('postCode', new FormControl())
   }
 
   public onSubmit(e: Event): void {
@@ -79,9 +82,9 @@ export class ReactiveFormsPageComponent implements OnInit {
   }
 
   private get _phoneFormGroup(): FormGroup {
-    return new FormGroup({
-      label: new FormControl(this.phoneLabels[0], { nonNullable: true }),
-      phone: new FormControl(''),
+    return this.fb.group({
+      label: this.fb.nonNullable.control(this.phoneLabels[0]),
+      phone: '',
     });
   }
 
