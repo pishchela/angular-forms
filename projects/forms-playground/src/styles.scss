@@ -44,10 +44,17 @@ form {
   max-width: 450px;
 }
 
-label, input, fieldset, button {
+label, input:not([type="checkbox"]), fieldset, button {
   width: 100%;
   box-sizing: border-box;
 }
+
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-right: var(--spacing-step);
+}
+
 
 fieldset {
   border-radius: var(--border-radius);
@@ -135,4 +142,15 @@ button[disabled] {
 .input-info {
   @include input-message();
   color: var(--color-info);
+}
+
+
+.phone-label-dropdown {
+  margin-right: var(--spacing-step);
+  width: 110px;
+}
+
+.skill-container {
+  display: flex;
+  align-items: center;
 }

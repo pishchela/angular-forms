@@ -7,8 +7,13 @@
     <a class="nav-link" routerLinkActive="active" routerLink="/custom-select">Custom Select</a>
     <a class="nav-link" routerLinkActive="active" routerLink="/dynamic-forms">Dynamic Forms</a>
   </div>
+<!--  <input-->
+<!--    [(ngModel)]="searchString"-->
+<!--    class="global-search"-->
+<!--         placeholder="global search">-->
   <input
-    [(ngModel)]="searchString"
+    [formControl]="reactiveSearchString"
     class="global-search"
-         placeholder="global search">
+    placeholder="global search"
+  >
 </header>
