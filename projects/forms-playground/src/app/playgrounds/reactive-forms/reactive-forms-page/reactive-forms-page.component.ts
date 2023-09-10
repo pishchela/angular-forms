@@ -1,18 +1,20 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  AbstractControl,
   FormArray,
   FormBuilder,
   FormControl,
-  FormGroup,
+  FormGroup, FormGroupDirective,
   FormRecord,
   ReactiveFormsModule,
   Validators
 } from "@angular/forms";
-import { Observable, startWith, Subscription, tap } from 'rxjs';
+import { bufferCount, delay, filter, Observable, of, startWith, Subscription, tap } from 'rxjs';
 import { UserSkillsService } from '../../../core/user-skills.service';
 import { banWords } from "../validators/ban-words.validator";
 import { passwordShouldMatch } from "../validators/password-should-match.validator";
+import { UniqueNicknameValidator } from "../validators/unique-nickname.validator";
 
 interface Address {
   fullAddress: FormControl<string>,
@@ -38,14 +40,24 @@ export class ReactiveFormsPageComponent implements OnInit, OnDestroy {
   years = this.getYears;
   skills$!: Observable<string[]>;
 
+  @ViewChild(FormGroupDirective)
+  private formDir!: FormGroupDirective;
+
   public form = this.fb.group({
     firstName: ['Dmytro', [Validators.required, Validators.minLength(2), banWords(['test', 'dummy'])]],
     lastName: ['Mezhenskyi', [Validators.required, Validators.minLength(2)]],
-    nickname: ['', [
-      Validators.required,
-      Validators.minLength(4),
-      Validators.pattern(/^[\w.]+$/)],
-      banWords(['test', 'abstract'])
+    nickname: ['', {
+      validators: [
+        Validators.required,
+        Validators.minLength(4),
+        Validators.pattern(/^[\w.]+$/),
+        banWords(['test', 'abstract'])
+      ],
+      asyncValidators: [
+        this.uniqueNicknameValidator.validate.bind(this.uniqueNicknameValidator),
+      ],
+      updateOn: 'blur',
+    },
     ],
     email: ['dmytro@decodedfrontend.io', [Validators.email]],
     yearOfBirth: this.fb.nonNullable.control(
@@ -75,6 +87,9 @@ export class ReactiveFormsPageComponent implements OnInit, OnDestroy {
   });
 
   private ageValidators!: Subscription;
+  private formPendingState!: Subscription;
+
+  private initialFormValues: any;
 
 
   get getYears() {
@@ -82,12 +97,18 @@ export class ReactiveFormsPageComponent implements OnInit, OnDestroy {
     return Array(now - (now - 40)).fill('').map((_, idx) => now - idx);
   }
 
-  constructor(private userSkills: UserSkillsService, private fb: FormBuilder) { }
+  constructor(
+    private userSkills: UserSkillsService,
+    private fb: FormBuilder,
+    private uniqueNicknameValidator: UniqueNicknameValidator,
+    private cdr: ChangeDetectorRef,
+    ) { }
 
   ngOnInit(): void {
     this.skills$ = this.userSkills.getSkills()
       .pipe(
         tap((skills) => this._buildSkillsControls (skills)),
+        tap(() => this.initialFormValues = this.form.value),
       );
 
     // this.form.controls.address.addControl('city', new FormControl())
@@ -103,15 +124,32 @@ export class ReactiveFormsPageComponent implements OnInit, OnDestroy {
         this.form.controls.passport.updateValueAndValidity();
       }
     );
+
+    this.formPendingState = this.form.controls.nickname.statusChanges
+      .pipe(
+        bufferCount(2, 1),
+        filter(([prevState]) => prevState === 'PENDING'),
+      )
+      .subscribe(() => this.cdr.markForCheck());
   }
 
   ngOnDestroy(): void {
     this.ageValidators.unsubscribe();
+    this.formPendingState.unsubscribe();
   }
 
   public onSubmit(e: Event): void {
-    // this.form.controls.firstName.reset();
     console.warn(this.form.value);
+    this.initialFormValues = this.form.value;
+    // this.form.reset();
+    // formDir reset reseting ng-submitted status from form
+    this.formDir.resetForm(this.form.value);
+    // this.form.controls.firstName.reset();
+  }
+
+  public onReset(e: Event): void {
+    e.preventDefault();
+    this.formDir.resetForm(this.initialFormValues);
   }
 
   public addPhone(): void {
