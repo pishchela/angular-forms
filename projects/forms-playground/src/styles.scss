@@ -105,7 +105,7 @@ select {
   border: 1px solid var(--color-success);
 }
 
-.ng-invalid.ng-dirty:not([ngModelGroup="address"]):not(form) {
+.ng-invalid.ng-dirty:not([ngModelGroup="address"]):not([formGroupName="address"]):not([formArrayName]):not(form) {
   border: 1px solid var(--color-error);
 }
 

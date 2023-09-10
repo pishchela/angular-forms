@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormArray,
@@ -9,8 +9,10 @@ import {
   ReactiveFormsModule,
   Validators
 } from "@angular/forms";
-import { Observable, tap } from 'rxjs';
+import { Observable, startWith, Subscription, tap } from 'rxjs';
 import { UserSkillsService } from '../../../core/user-skills.service';
+import { banWords } from "../validators/ban-words.validator";
+import { passwordShouldMatch } from "../validators/password-should-match.validator";
 
 interface Address {
   fullAddress: FormControl<string>,
@@ -30,25 +32,27 @@ interface Address {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ReactiveFormsPageComponent implements OnInit {
+export class ReactiveFormsPageComponent implements OnInit, OnDestroy {
 
   phoneLabels = ['Main', 'Mobile', 'Work', 'Home'];
   years = this.getYears;
   skills$!: Observable<string[]>;
 
   public form = this.fb.group({
-    firstName: ['Dmytro', [Validators.required, Validators.minLength(2)]],
+    firstName: ['Dmytro', [Validators.required, Validators.minLength(2), banWords(['test', 'dummy'])]],
     lastName: ['Mezhenskyi', [Validators.required, Validators.minLength(2)]],
     nickname: ['', [
       Validators.required,
       Validators.minLength(4),
       Validators.pattern(/^[\w.]+$/)],
+      banWords(['test', 'abstract'])
     ],
     email: ['dmytro@decodedfrontend.io', [Validators.email]],
     yearOfBirth: this.fb.nonNullable.control(
       this.years[this.years.length - 1],
       [Validators.required]),
     passport: ['', [Validators.pattern(/^[A-Z]{2}[0-9]{6}$/)]],
+    // new FormGroup<Address>({})
     address: this.fb.nonNullable.group({
       fullAddress: ['', [Validators.required]],
       city: ['', [Validators.required]],
@@ -62,7 +66,15 @@ export class ReactiveFormsPageComponent implements OnInit {
     // skills: new FormGroup<{ [key: string]: FormControl<boolean> }>({}),
     skills: new FormRecord<FormControl<boolean>>({}),
     // since Angular 14.2 -> this.fb.record<boolean>
+    password: this.fb.group({
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ''
+    }, {
+      validators: passwordShouldMatch
+    })
   });
+
+  private ageValidators!: Subscription;
 
 
   get getYears() {
@@ -80,6 +92,21 @@ export class ReactiveFormsPageComponent implements OnInit {
 
     // this.form.controls.address.addControl('city', new FormControl())
     // this.form.controls.address.addControl('postCode', new FormControl())
+    this.ageValidators = this.form.controls.yearOfBirth.valueChanges.pipe(
+      tap(() => this.form.controls.passport.markAsDirty()),
+      startWith(this.form.controls.yearOfBirth.value)
+    ).subscribe(
+      yearOfBirth => {
+        this.isAdult(yearOfBirth)
+          ? this.form.controls.passport.addValidators(Validators.required)
+          : this.form.controls.passport.removeValidators(Validators.required);
+        this.form.controls.passport.updateValueAndValidity();
+      }
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.ageValidators.unsubscribe();
   }
 
   public onSubmit(e: Event): void {
@@ -108,5 +135,9 @@ export class ReactiveFormsPageComponent implements OnInit {
     });
   }
 
+  private isAdult(yearOfBirth: number): boolean {
+    const currentYear = new Date().getFullYear();
+    return currentYear - yearOfBirth >= 18;
+  }
 
 }
