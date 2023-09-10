@@ -100,7 +100,8 @@ select {
   width: 100%;
 }
 
-.ng-valid.ng-dirty:not([ngModelGroup]):not(form) {
+.ng-valid.ng-dirty:not([formGroupName]):not([formArrayName]):not([ngModelGroup]):not(form)
+{
   border: 1px solid var(--color-success);
 }
 
