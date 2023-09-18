@@ -1,1 +1,14 @@
-<cfc-select label="Pick the User"></cfc-select>
+<cfc-select
+  (selectionChanged)="onSelectionChanged($event)"
+  [value]="selectedValue"
+  label="Pick the User">
+  <h5>Available option:</h5>
+  <cfc-option value="albert-einstein">Albert Einstein</cfc-option>
+  <cfc-option value="albert">Albert</cfc-option>
+  <cfc-option value="niels">Niels</cfc-option>
+  <cfc-option value="einstein"
+              disabledReason="Too smart"
+              [disabled]="true">
+    Einstein
+  </cfc-option>
+</cfc-select>

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SelectModule } from "custom-form-controls";
 
@@ -15,9 +15,18 @@ import { SelectModule } from "custom-form-controls";
 })
 export class CustomSelectPageComponent implements OnInit {
 
-  constructor() { }
+  selectedValue = 'einstein';
+  constructor(private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
+    setTimeout(() => {
+      this.selectedValue = 'niels';
+      this.cdr.markForCheck();
+    }, 500);
+  }
+
+  onSelectionChanged(value: unknown  | null) {
+    console.log('Selected value: ', value);
   }
 
 }
