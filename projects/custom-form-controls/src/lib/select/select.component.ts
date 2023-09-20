@@ -1,8 +1,8 @@
 import {
-  AfterContentInit, ChangeDetectionStrategy,
+  AfterContentInit, Attribute, ChangeDetectionStrategy,
   Component,
   ContentChildren,
-  EventEmitter,
+  EventEmitter, HostBinding,
   HostListener,
   Input, OnChanges, OnDestroy,
   OnInit,
@@ -13,8 +13,9 @@ import { animate, AnimationEvent, state, style, transition, trigger } from "@ang
 import { OptionComponent } from "./option/option.component";
 import { SelectionModel } from "@angular/cdk/collections";
 import { merge, startWith, Subject, switchMap, takeUntil, tap } from "rxjs";
+import { coerceBooleanProperty } from "@angular/cdk/coercion";
 
-export type SelectValue<T> = T | null;
+export type SelectValue<T> = T | T[] | null;
 
 @Component({
   selector: 'cfc-select',
@@ -48,16 +49,27 @@ export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestro
   set value(value: SelectValue<T>) {
     this.selectionModel.clear();
     if (value) {
-      this.selectionModel.select(value);
-      this.highlightSelectedOptions();
+      if (Array.isArray(value)) {
+        this.selectionModel.select(...value);
+      } else {
+        this.selectionModel.select(value);
+      }
+
+      // this.highlightSelectedOptions();
     }
   }
 
   get value() {
-    return this.selectionModel.selected[0] || null;
+    if (this.selectionModel.isEmpty()) {
+      return null;
+    }
+    if (this.selectionModel.isMultipleSelection()) {
+      return this.selectionModel.selected;
+    }
+    return this.selectionModel.selected[0];
   }
 
-  private selectionModel = new SelectionModel<T>()
+  private selectionModel = new SelectionModel<T>(coerceBooleanProperty(this.multiple))
 
   @Output()
   readonly opened = new EventEmitter<void>();
@@ -80,10 +92,14 @@ export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestro
   @ContentChildren(OptionComponent, { descendants: true })
   options!: QueryList<OptionComponent<T>>;
 
+  @HostBinding('class.select-panel-open')
   isOpen = false;
 
   protected get displayValue() {
     if (this.displayWith && this.value) {
+      if (Array.isArray(this.value)) {
+        return this.value.map(this.displayWith)
+      }
       return this.displayWith(this.value)
     }
     return this.value;
@@ -92,7 +108,7 @@ export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestro
   private unsubscribe$ = new Subject<void>();
   private optionMap = new Map<T | null, OptionComponent<T>>();
 
-  constructor() { }
+  constructor(@Attribute('multiple') private multiple: string) { }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['compareWith']) {
@@ -101,6 +117,12 @@ export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestro
       this.highlightSelectedOptions();
     }
    }
+
+  clearSelection(e: Event) {
+    e.stopPropagation();
+    this.selectionModel.clear();
+    this.selectionChanged.emit(this.value);
+  }
 
   ngAfterContentInit(): void {
     this.selectionModel.changed.pipe(takeUntil(this.unsubscribe$)).subscribe((values) => {
@@ -130,7 +152,9 @@ export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestro
       this.selectionModel.toggle(option.value);
       this.selectionChanged.emit(this.value);
     }
-    this.close();
+    if (!this.selectionModel.isMultipleSelection()) {
+      this.close();
+    }
   }
 
   private refreshOptionsMap() {
@@ -148,7 +172,7 @@ export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestro
 
   }
 
-  private findOptionsByValue(value: SelectValue<T>): OptionComponent<T> | undefined {
+  private findOptionsByValue(value: T | null): OptionComponent<T> | undefined {
     if (this.optionMap.has(value)) {
       return this.optionMap.get(value);
     }

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { CommonModule } from '@angular/common';
 import { SelectModule } from "custom-form-controls";
 import { User } from "../../../core/user";
+import { SelectValue } from "../../../../../../custom-form-controls/src/lib/select/select.component";
 
 @Component({
   selector: 'app-custom-select-page',
@@ -16,7 +17,10 @@ import { User } from "../../../core/user";
 })
 export class CustomSelectPageComponent implements OnInit {
 
-  selectedValue = new User(2, 'Niels Bohr', 'niels', 'Denmark');
+  selectedValue: SelectValue<User> = [
+    new User(2, 'Niels Bohr', 'niels', 'Denmark'),
+    new User(1, 'Albert Einstein', 'albert', 'Germany/USA'),
+  ];
   users: User[] = [
     new User(1, 'Albert Einstein', 'albert', 'Germany/USA'),
     new User(2, 'Niels Bohr', 'niels', 'Denmark'),

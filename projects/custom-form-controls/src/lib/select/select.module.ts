@@ -12,8 +12,8 @@ import { OptionComponent } from './option/option.component';
     OptionComponent
   ],
   imports: [
-    CommonModule,
     OverlayModule,
+    CommonModule,
   ],
   exports: [
     SelectComponent,

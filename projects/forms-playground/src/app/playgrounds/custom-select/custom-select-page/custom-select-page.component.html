@@ -1,6 +1,7 @@
 <cfc-select
   (selectionChanged)="onSelectionChanged($event)"
   [value]="selectedValue"
+  multiple
   [displayWith]="displayWithFn"
   [compareWith]="compareWithFn"
   label="Pick the User">
