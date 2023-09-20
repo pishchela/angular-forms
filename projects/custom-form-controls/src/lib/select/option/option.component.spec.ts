@@ -3,8 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { OptionComponent } from './option.component';
 
 describe('OptionComponent', () => {
-  let component: OptionComponent;
-  let fixture: ComponentFixture<OptionComponent>;
+  let component: OptionComponent<any>;
+  let fixture: ComponentFixture<OptionComponent<any>>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({

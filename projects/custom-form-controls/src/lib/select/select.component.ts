@@ -1,18 +1,18 @@
 import {
-  AfterContentInit,
+  AfterContentInit, ChangeDetectionStrategy,
   Component,
   ContentChildren,
   EventEmitter,
   HostListener,
-  Input, OnDestroy,
+  Input, OnChanges, OnDestroy,
   OnInit,
   Output,
-  QueryList
+  QueryList, SimpleChanges
 } from '@angular/core';
 import { animate, AnimationEvent, state, style, transition, trigger } from "@angular/animations";
 import { OptionComponent } from "./option/option.component";
 import { SelectionModel } from "@angular/cdk/collections";
-import { merge, startWith, Subject, switchMap, takeUntil } from "rxjs";
+import { merge, startWith, Subject, switchMap, takeUntil, tap } from "rxjs";
 
 export type SelectValue<T> = T | null;
 
@@ -29,19 +29,27 @@ export type SelectValue<T> = T | null;
       transition(':leave', [animate('420ms cubic-bezier(0.88, -0.7, 0.86, 0.85)')]),
       // * => void   -    :leave
     ]),
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SelectComponent<T> implements AfterContentInit, OnDestroy {
+export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestroy {
 
   @Input()
   label = '';
+
+  @Input()
+  displayWith: ((value: T) => string | number) | null = null;
+
+  @Input()
+  compareWith: ((v1: T | null, v2: T | null) => boolean) = (v1, v2) => v1 === v2;
+
 
   @Input()
   set value(value: SelectValue<T>) {
     this.selectionModel.clear();
     if (value) {
       this.selectionModel.select(value);
-      this.highlightSelectedOptions(value);
+      this.highlightSelectedOptions();
     }
   }
 
@@ -73,18 +81,36 @@ export class SelectComponent<T> implements AfterContentInit, OnDestroy {
   options!: QueryList<OptionComponent<T>>;
 
   isOpen = false;
-  constructor() { }
+
+  protected get displayValue() {
+    if (this.displayWith && this.value) {
+      return this.displayWith(this.value)
+    }
+    return this.value;
+  }
 
   private unsubscribe$ = new Subject<void>();
+  private optionMap = new Map<T | null, OptionComponent<T>>();
+
+  constructor() { }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['compareWith']) {
+      /// ????
+      // this.selectionModel['compareWith'] = changes['compareWith'].currentValue;
+      this.highlightSelectedOptions();
+    }
+   }
 
   ngAfterContentInit(): void {
-    this.highlightSelectedOptions(this.value);
     this.selectionModel.changed.pipe(takeUntil(this.unsubscribe$)).subscribe((values) => {
-      values.removed.forEach(rv => this.findOptionsByValue(rv)?.deselect());
-      values.added.forEach(rv => this.findOptionsByValue(rv)?.highlightAsSelected() );
+      values.removed.forEach(rv => this.optionMap.get(rv)?.deselect());
+      values.added.forEach(av => this.optionMap.get(av)?.highlightAsSelected());
     });
     this.options.changes.pipe(
       startWith<QueryList<OptionComponent<T>>>(this.options),
+      tap(() => this.refreshOptionsMap()),
+      tap(() => queueMicrotask(() => this.highlightSelectedOptions())),
       switchMap(options => merge(...options.map(opt => opt.selected))),
       takeUntil(this.unsubscribe$),
     ).subscribe((selectedOption) => this.handleSelection(selectedOption));
@@ -107,14 +133,26 @@ export class SelectComponent<T> implements AfterContentInit, OnDestroy {
     this.close();
   }
 
+  private refreshOptionsMap() {
+    this.optionMap.clear();
+    this.options.forEach(o => this.optionMap.set(o.value, o));
+  }
 
-  private highlightSelectedOptions(value: SelectValue<T>) {
-    this.findOptionsByValue(value)?.highlightAsSelected();
+  private highlightSelectedOptions() {
+    const valuesWithUpdatedReferences = this.selectionModel.selected.map(value => {
+      const correspondingOption = this.findOptionsByValue(value);
+      return correspondingOption ? correspondingOption.value! : value;
+    });
+    this.selectionModel.clear();
+    this.selectionModel.select(...valuesWithUpdatedReferences);
 
   }
 
   private findOptionsByValue(value: SelectValue<T>): OptionComponent<T> | undefined {
-    return this.options && this.options.find((option) => option.value === value);
+    if (this.optionMap.has(value)) {
+      return this.optionMap.get(value);
+    }
+    return this.options && this.options.find((option) => this.compareWith(option.value, value));
   }
 
   ngOnDestroy() {

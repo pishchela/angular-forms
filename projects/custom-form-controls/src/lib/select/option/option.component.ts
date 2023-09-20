@@ -1,4 +1,13 @@
-import { Component, EventEmitter, HostBinding, HostListener, Input, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  HostBinding,
+  HostListener,
+  Input,
+  OnInit,
+  Output
+} from '@angular/core';
 
 @Component({
   selector: 'cfc-option',
@@ -31,17 +40,19 @@ export class OptionComponent<T> implements OnInit {
   @HostBinding('class.selected')
   protected isSelected = false;
 
-  constructor() { }
+  constructor(private cd: ChangeDetectorRef) { }
 
   ngOnInit(): void {
   }
 
   highlightAsSelected() {
     this.isSelected = true;
+    this.cd.markForCheck();
   }
 
   public deselect() {
     this.isSelected = false;
+    this.cd.markForCheck();
   }
 
 }
