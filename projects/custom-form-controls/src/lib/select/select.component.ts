@@ -1,13 +1,13 @@
 import {
   AfterContentInit, Attribute, ChangeDetectionStrategy,
   Component,
-  ContentChildren,
+  ContentChildren, ElementRef,
   EventEmitter, HostBinding,
   HostListener,
   Input, OnChanges, OnDestroy,
   OnInit,
   Output,
-  QueryList, SimpleChanges
+  QueryList, SimpleChanges, ViewChild
 } from '@angular/core';
 import { animate, AnimationEvent, state, style, transition, trigger } from "@angular/animations";
 import { OptionComponent } from "./option/option.component";
@@ -37,6 +37,13 @@ export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestro
 
   @Input()
   label = '';
+
+  @Input()
+  searchable = false;
+
+  @Input()
+  @HostBinding('class.disabled')
+  disabled = false;
 
   @Input()
   displayWith: ((value: T) => string | number) | null = null;
@@ -80,9 +87,18 @@ export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestro
   @Output()
   readonly closed = new EventEmitter<void>();
 
+  @Output()
+  readonly searchChanged = new EventEmitter<string>();
+
   @HostListener('click')
   open() {
+    if (this.disabled) return;
     this.isOpen = true;
+    if (this.searchable) {
+      requestAnimationFrame(() => {
+        this.searchInputEl.nativeElement.focus();
+      })
+    }
   }
 
   close() {
@@ -91,6 +107,9 @@ export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestro
 
   @ContentChildren(OptionComponent, { descendants: true })
   options!: QueryList<OptionComponent<T>>;
+
+  @ViewChild('input')
+  searchInputEl!: ElementRef<HTMLInputElement>
 
   @HostBinding('class.select-panel-open')
   isOpen = false;
@@ -120,6 +139,7 @@ export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestro
 
   clearSelection(e: Event) {
     e.stopPropagation();
+    if (this.disabled) return;
     this.selectionModel.clear();
     this.selectionChanged.emit(this.value);
   }
@@ -138,7 +158,7 @@ export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestro
     ).subscribe((selectedOption) => this.handleSelection(selectedOption));
   }
 
-  onPanelAnimationDone({ fromState, toState }: AnimationEvent) {
+  protected onPanelAnimationDone({ fromState, toState }: AnimationEvent) {
     if (fromState === 'void' && toState == null && this.isOpen) {
       this.opened.emit();
     }
@@ -147,7 +167,14 @@ export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestro
     }
   }
 
+  protected onHandleInput(e: Event) {
+    this.searchChanged.emit((e.target as HTMLInputElement).value);
+  }
+
   handleSelection(option: OptionComponent<T>) {
+    if (this.disabled) {
+      return;
+    }
     if (option.value) {
       this.selectionModel.toggle(option.value);
       this.selectionChanged.emit(this.value);

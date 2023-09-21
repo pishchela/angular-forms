@@ -1,6 +1,14 @@
 <div class="label">{{label}} </div>
 <div class="control" cdkOverlayOrigin #origin="cdkOverlayOrigin">
-  <span class="selected-value" [ngClass]="{ empty: !value }">{{ displayValue || 'Nothing is selected...' }}</span>
+  <ng-container [ngSwitch]="searchable && isOpen">
+    <input
+      *ngSwitchCase="true"
+      #input
+      (input)="onHandleInput($event)"
+      class="select-search"
+      placeholder="Start typing...">
+    <span *ngSwitchCase="false" class="selected-value" [ngClass]="{ empty: !value }">{{ displayValue || 'Nothing is selected...' }}</span>
+  </ng-container>
   <button (click)="clearSelection($event)" *ngIf="value" class="clear-button">clear</button>
   <span class="drop-down-icon">👇</span>
 </div>

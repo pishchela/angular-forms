@@ -18,6 +18,11 @@
     position: relative;
     z-index: 1001;
   }
+  &.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    user-select: none;
+  }
 }
 .label {
   font-size: 13px;
@@ -39,6 +44,13 @@
   &.empty {
     opacity: 0.6;
   }
+}
+
+.select-search {
+  border: none;
+  padding: 0;
+  background: transparent;
+  outline: none;
 }
 
 .panel {
