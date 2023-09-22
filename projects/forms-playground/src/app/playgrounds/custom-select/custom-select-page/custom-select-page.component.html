@@ -1,9 +1,7 @@
 <cfc-select
-  (selectionChanged)="onSelectionChanged($event)"
   (searchChanged)="onSearchChanged($event)"
   (closed)="onSearchChanged('')"
-  [value]="selectedValue"
-  [disabled]="true"
+  [formControl]="selectValue"
   multiple
   [searchable]="true"
   [displayWith]="displayWithFn"
