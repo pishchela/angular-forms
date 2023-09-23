@@ -1,6 +1,6 @@
 import {
   ChangeDetectorRef,
-  Component,
+  Component, ElementRef,
   EventEmitter,
   HostBinding,
   HostListener,
@@ -8,13 +8,14 @@ import {
   OnInit,
   Output
 } from '@angular/core';
+import { Highlightable } from "@angular/cdk/a11y";
 
 @Component({
   selector: 'cfc-option',
   templateUrl: './option.component.html',
   styleUrls: ['./option.component.scss']
 })
-export class OptionComponent<T> implements OnInit {
+export class OptionComponent<T> implements OnInit, Highlightable {
 
   @Input()
   value: T | null = null;
@@ -40,9 +41,29 @@ export class OptionComponent<T> implements OnInit {
   @HostBinding('class.selected')
   protected isSelected = false;
 
-  constructor(private cd: ChangeDetectorRef) { }
+  @HostBinding('class.active')
+  protected isActive = false;
+
+  constructor(
+    private cd: ChangeDetectorRef,
+    private el: ElementRef<HTMLElement>,
+    ) { }
+
+  setActiveStyles(): void {
+    this.isActive = true;
+    this.cd.markForCheck();
+  }
+
+  setInactiveStyles(): void {
+    this.isActive = false;
+    this.cd.markForCheck();
+  }
 
   ngOnInit(): void {
+  }
+
+  scrollIntoView(options: ScrollIntoViewOptions) {
+    this.el.nativeElement.scrollIntoView(options);
   }
 
   highlightAsSelected() {

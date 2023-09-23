@@ -15,6 +15,7 @@ import { SelectionModel } from "@angular/cdk/collections";
 import { merge, startWith, Subject, switchMap, takeUntil, tap } from "rxjs";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { ActiveDescendantKeyManager } from "@angular/cdk/a11y";
 
 export type SelectValue<T> = T | T[] | null;
 
@@ -112,7 +113,23 @@ export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestro
   close() {
     this.isOpen = false;
     this.onTouched();
+    this.hostEl.nativeElement.focus();
     this.cdr.markForCheck();
+  }
+
+  @HostListener('keydown', ['$event'])
+  protected onKeyDown(e: KeyboardEvent) {
+    if (e.key === 'ArrowDown' && !this.isOpen) {
+      this.open();
+      return;
+    }
+    if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && this.isOpen) {
+      this.listKeyManager.onKeydown(e);
+      return;
+    }
+    if (e.key === 'Enter' && this.isOpen && this.listKeyManager.activeItem) {
+      this.handleSelection(this.listKeyManager.activeItem)
+    }
   }
 
   @ContentChildren(OptionComponent, { descendants: true })
@@ -142,11 +159,13 @@ export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestro
   protected onTouched: () => void = () => {};
 
   private unsubscribe$ = new Subject<void>();
+  private listKeyManager!: ActiveDescendantKeyManager<OptionComponent<T>>
   private optionMap = new Map<T | null, OptionComponent<T>>();
 
   constructor(
     @Attribute('multiple') private multiple: string,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private hostEl: ElementRef,
     ) { }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -167,6 +186,13 @@ export class SelectComponent<T> implements OnChanges, AfterContentInit, OnDestro
   }
 
   ngAfterContentInit(): void {
+    this.listKeyManager = new ActiveDescendantKeyManager(this.options).withWrap();
+    this.listKeyManager.change.pipe(takeUntil(this.unsubscribe$)).subscribe((itemIndex) => {
+      this.options.get(itemIndex)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    });
     this.selectionModel.changed.pipe(takeUntil(this.unsubscribe$)).subscribe((values) => {
       values.removed.forEach(rv => this.optionMap.get(rv)?.deselect());
       values.added.forEach(av => this.optionMap.get(av)?.highlightAsSelected());
