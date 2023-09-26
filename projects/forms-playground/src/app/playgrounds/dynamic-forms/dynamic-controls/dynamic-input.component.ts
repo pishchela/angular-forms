@@ -9,6 +9,7 @@ import { BaseDynamicControl } from "./base-dynamic-control";
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <ng-container [formGroup]="formGroup">
+      <label [for]="control.controlKey">{{control.config.label}}</label>
       <input [formControlName]="control.controlKey"
              [id]="control.controlKey"
              [value]="control.config.value"

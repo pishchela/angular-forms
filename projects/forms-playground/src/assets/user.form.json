@@ -30,6 +30,14 @@
         { "label": "Editor", "value": "editor" },
         { "label": "Guest", "value": "guest" }
       ]
+    },
+    "terms": {
+      "controlType": "checkbox",
+      "label": "Terms & Conditions were accepted",
+      "value": false,
+      "validators": {
+        "requiredTrue": true
+      }
     }
   }
 }
