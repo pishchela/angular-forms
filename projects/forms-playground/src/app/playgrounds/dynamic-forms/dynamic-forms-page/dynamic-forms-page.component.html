@@ -9,7 +9,11 @@
     <h3 class="form-heading">{{formConfig.description}}</h3>
     <div *ngFor="let control of formConfig.controls | keyvalue" class="form-field">
       <label [for]="control.key">{{control.value.label}}</label>
-      <ng-container [ngComponentOutlet]="controlResolver.resolve(control.value.controlType)"></ng-container>
+      <ng-container
+        [ngComponentOutlet]="controlResolver.resolve(control.value.controlType)"
+        [ngComponentOutletInjector]="control.key | controlInjector: control.value"
+      >
+      </ng-container>
 <!--      <ng-container [ngSwitch]="control.value.controlType">-->
 <!--        <input *ngSwitchCase="'input'"-->
 <!--               [id]="control.key"-->
