@@ -7,7 +7,7 @@
         (ngSubmit)="onSubmit()"
   >
     <h3 class="form-heading">{{formConfig.description}}</h3>
-    <div *ngFor="let control of formConfig.controls | keyvalue" class="form-field">
+    <ng-container *ngFor="let control of formConfig.controls | keyvalue">
       <ng-container
         [ngComponentOutlet]="controlResolver.resolve(control.value.controlType)"
         [ngComponentOutletInjector]="control.key | controlInjector: control.value"
@@ -34,7 +34,7 @@
         It must contain {{form.get(control.key)?.getError('minlength').requiredLength }} characters
       </div>
       <div *ngIf="form.get(control.key)?.dirty && form.get(control.key)?.hasError('banWords')" class="input-error">This word is not allowed</div>
-    </div>
+    </ng-container>
     <button type="submit" [disabled]="form.invalid">Save</button>
   </form>
 </div>
