@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, KeyValue } from '@angular/common';
 import { Observable, Subject, switchMap, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { DynamicControl, DynamicFormConfig } from "../dynamic-forms.model";
@@ -7,6 +7,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angula
 import { banWords } from "../../reactive-forms/validators/ban-words.validator";
 import { DynamicControlResolver } from "../dynamic-controls/dynamic-control-resolver.service";
 import { ControlInjectorPipe } from "../dynamic-controls/control-injector.pipe";
+import { comparatorFn } from "../dynamic-controls/base-dynamic-control";
 
 @Component({
   selector: 'app-dynamic-forms-page',
@@ -23,6 +24,7 @@ export class DynamicFormsPageComponent implements OnInit {
 
   form!: FormGroup
 
+  protected comparatorFn = comparatorFn;
   protected formLoadingTrigger = new Subject<'user' | 'company'>();
   protected formConfig$!: Observable<DynamicFormConfig>;
 
