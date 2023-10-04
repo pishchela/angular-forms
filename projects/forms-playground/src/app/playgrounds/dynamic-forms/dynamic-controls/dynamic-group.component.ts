@@ -2,7 +2,7 @@
 import { Component, HostBinding, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseDynamicControl, comparatorFn, dynamicControlResolver } from './base-dynamic-control';
-import { ReactiveFormsModule } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DynamicControlResolver } from "./dynamic-control-resolver.service";
 import { ControlInjectorPipe } from "./control-injector.pipe";
 @Component({
@@ -26,5 +26,6 @@ import { ControlInjectorPipe } from "./control-injector.pipe";
 export class DynamicGroupComponent extends BaseDynamicControl {
   @HostBinding('class') override hostClass = 'form-field-group';
   controlResolver = inject(DynamicControlResolver);
+  override formControl: AbstractControl = new FormGroup({});
   protected comparatorFn = comparatorFn;
 }

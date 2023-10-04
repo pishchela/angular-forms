@@ -3,38 +3,23 @@
   <button (click)="formLoadingTrigger.next('company')" type="button">Load Company Form</button>
 </div>
 <div *ngIf="formConfig$ | async as formConfig" class="dynamic-form-container">
-  <form [formGroup]="form"
-        (ngSubmit)="onSubmit()"
+  <form [formGroup]="formConfig.form"
+        (ngSubmit)="onSubmit(formConfig.form)"
   >
-    <h3 class="form-heading">{{formConfig.description}}</h3>
-    <ng-container *ngFor="let control of formConfig.controls | keyvalue: comparatorFn">
+    <h3 class="form-heading">{{formConfig.config.description}}</h3>
+    <ng-container *ngFor="let control of formConfig.config.controls | keyvalue: comparatorFn">
       <ng-container
         [ngComponentOutlet]="controlResolver.resolve(control.value.controlType) | async"
         [ngComponentOutletInjector]="control.key | controlInjector: control.value"
       >
       </ng-container>
-<!--      <ng-container [ngSwitch]="control.value.controlType">-->
-<!--        <input *ngSwitchCase="'input'"-->
-<!--               [id]="control.key"-->
-<!--               [formControlName]="control.key"-->
-<!--               [value]="control.value.value"-->
-<!--               [type]="control.value.type">-->
-<!--        <ng-container *ngSwitchCase="'select'">-->
-<!--          <select-->
-<!--            [formControlName]="control.key"-->
-<!--            [value]="control.value.value"-->
-<!--            [id]="control.key">-->
-<!--            <option *ngFor="let option of control.value.options" [value]="option.value">{{option.label}}</option>-->
-<!--          </select>-->
-<!--        </ng-container>-->
-<!--      </ng-container>-->
-      <div *ngIf="form.get(control.key)?.hasError('required') && form.get(control.key)?.dirty" class="input-error">This field is required</div>
-      <div *ngIf="form.get(control.key)?.hasError('email') && form.get(control.key)?.dirty" class="input-error">It must be a valid email</div>
-      <div *ngIf="form.get(control.key)?.hasError('minlength') && form.get(control.key)?.dirty" class="input-error">
-        It must contain {{form.get(control.key)?.getError('minlength').requiredLength }} characters
+      <div *ngIf="formConfig.form.get(control.key)?.hasError('required') && formConfig.form.get(control.key)?.dirty" class="input-error">This field is required</div>
+      <div *ngIf="formConfig.form.get(control.key)?.hasError('email') && formConfig.form.get(control.key)?.dirty" class="input-error">It must be a valid email</div>
+      <div *ngIf="formConfig.form.get(control.key)?.hasError('minlength') && formConfig.form.get(control.key)?.dirty" class="input-error">
+        It must contain {{formConfig.form.get(control.key)?.getError('minlength').requiredLength }} characters
       </div>
-      <div *ngIf="form.get(control.key)?.dirty && form.get(control.key)?.hasError('banWords')" class="input-error">This word is not allowed</div>
+      <div *ngIf="formConfig.form.get(control.key)?.dirty && formConfig.form.get(control.key)?.hasError('banWords')" class="input-error">This word is not allowed</div>
     </ng-container>
-    <button type="submit" [disabled]="form.invalid">Save</button>
+    <button type="submit" [disabled]="formConfig.form.invalid">Save</button>
   </form>
 </div>
