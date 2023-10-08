@@ -10,7 +10,7 @@ import { VALIDATION_ERROR_MESSAGES } from "./validation-error-messages.token";
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div *ngFor="let error of errors | keyvalue" class="input-error">
-      {{ errorsMap[error.key] }}
+      {{ errorsMap[error.key](error.value) }}
     </div>
   `,
   styles: [
@@ -23,7 +23,7 @@ import { VALIDATION_ERROR_MESSAGES } from "./validation-error-messages.token";
 })
 export class InputErrorComponent implements OnInit{
   @Input()
-  errors: ValidationErrors | null = null;
+  errors?: ValidationErrors | null = null;
 
   protected errorsMap = inject(VALIDATION_ERROR_MESSAGES);
 
