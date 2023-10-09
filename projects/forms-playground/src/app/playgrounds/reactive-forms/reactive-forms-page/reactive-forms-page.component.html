@@ -72,7 +72,7 @@
       </div>
     </ng-container>
   </fieldset>
-  <fieldset formGroupName="password">
+  <fieldset formGroupName="password" [container]="containerDir.container">
     <legend>Password</legend>
     <div class="form-field">
       <label for="password">Create Password</label>
@@ -82,6 +82,7 @@
       <label for="confirm-password">Confirm Password</label>
       <input withoutValidationErrors formControlName="confirmPassword" type="password" id="confirm-password" placeholder="Enter password...">
     </div>
+    <ng-container validatorMessageContainer #containerDir="validatorMessageContainer"></ng-container>
   </fieldset>
   <button [disabled]="form.invalid || form.pending">Save</button>
   <button type="reset" class="reset-button" [disabled]="form.pristine">Reset</button>

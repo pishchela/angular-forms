@@ -17,6 +17,7 @@ import { passwordShouldMatch } from "../validators/password-should-match.validat
 import { UniqueNicknameValidator } from "../validators/unique-nickname.validator";
 import { DynamicValidatorMessageDirective } from "../../../core/dynamic-validator-message.directive";
 import { ErrorStateMatcher, OnTouchedStateMatcher } from "../../../core/input-error/error-state-matcher.service";
+import { ValidatorMessageContainer } from "../../../core/input-error/validator-message-container.directive";
 
 interface Address {
   fullAddress: FormControl<string>,
@@ -30,7 +31,8 @@ interface Address {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    DynamicValidatorMessageDirective
+    DynamicValidatorMessageDirective,
+    ValidatorMessageContainer,
   ],
   templateUrl: './reactive-forms-page.component.html',
   styleUrls: [
