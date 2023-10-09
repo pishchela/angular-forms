@@ -15,7 +15,8 @@ import { UserSkillsService } from '../../../core/user-skills.service';
 import { banWords } from "../validators/ban-words.validator";
 import { passwordShouldMatch } from "../validators/password-should-match.validator";
 import { UniqueNicknameValidator } from "../validators/unique-nickname.validator";
-import { InputErrorComponent } from "../../../core/input-error/input-error.component";
+import { DynamicValidatorMessageDirective } from "../../../core/dynamic-validator-message.directive";
+import { ErrorStateMatcher, OnTouchedStateMatcher } from "../../../core/input-error/error-state-matcher.service";
 
 interface Address {
   fullAddress: FormControl<string>,
@@ -29,7 +30,7 @@ interface Address {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    InputErrorComponent,
+    DynamicValidatorMessageDirective
   ],
   templateUrl: './reactive-forms-page.component.html',
   styleUrls: [
@@ -37,13 +38,21 @@ interface Address {
     '../../common-form.scss',
     './reactive-forms-page.component.scss'
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  // providers: [
+  //   {
+  //     provide: ErrorStateMatcher,
+  //     useClass: OnTouchedStateMatcher,
+  //   }
+  // ]
 })
 export class ReactiveFormsPageComponent implements OnInit, OnDestroy {
 
   phoneLabels = ['Main', 'Mobile', 'Work', 'Home'];
   years = this.getYears;
   skills$!: Observable<string[]>;
+
+  showErrorStrategy = new OnTouchedStateMatcher();
 
   @ViewChild(FormGroupDirective)
   private formDir!: FormGroupDirective;

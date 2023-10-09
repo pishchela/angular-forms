@@ -1,12 +1,23 @@
 import { Directive, HostBinding, inject, InjectFlags, OnInit, StaticProvider } from "@angular/core";
-import { AbstractControl, ControlContainer, FormControl, FormGroup, Validators } from "@angular/forms";
+import {
+  AbstractControl,
+  ControlContainer,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from "@angular/forms";
 import { CONTROL_DATA } from "./control-data.token";
-import { KeyValue } from "@angular/common";
+import { CommonModule, KeyValue } from "@angular/common";
 import { DynamicControl } from "../dynamic-forms.model";
 import { banWords } from "../../reactive-forms/validators/ban-words.validator";
+import { DynamicValidatorMessageDirective } from "../../../core/dynamic-validator-message.directive";
 
 export const comparatorFn = (a: KeyValue<string, DynamicControl>, b: KeyValue<string, DynamicControl>): number => a.value.order = b.value.order;
 
+export const sharedDynamicControlDeps = [
+  CommonModule, ReactiveFormsModule, DynamicValidatorMessageDirective
+];
 
 export const dynamicControlResolver: StaticProvider = {
   provide: ControlContainer,

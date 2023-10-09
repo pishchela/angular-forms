@@ -5,7 +5,7 @@ import { UserInfo } from "../../../core/user-info";
 import { BanWordsDirective } from "../validators/ban-words.directive";
 import { PasswordShouldMatchDirective } from '../validators/password-should-match.directive';
 import { UniqueNicknameDirective } from "../validators/unique-nickname.directive";
-import { InputErrorComponent } from "../../../core/input-error/input-error.component";
+import { DynamicValidatorMessageDirective } from "../../../core/dynamic-validator-message.directive";
 
 @Component({
   selector: 'app-template-forms-page',
@@ -16,7 +16,7 @@ import { InputErrorComponent } from "../../../core/input-error/input-error.compo
     BanWordsDirective,
     PasswordShouldMatchDirective,
     UniqueNicknameDirective,
-    InputErrorComponent,
+    DynamicValidatorMessageDirective,
   ],
   templateUrl: './template-forms-page.component.html',
   styleUrls: [

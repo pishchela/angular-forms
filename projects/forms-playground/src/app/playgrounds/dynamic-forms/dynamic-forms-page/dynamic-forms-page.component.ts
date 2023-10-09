@@ -7,12 +7,11 @@ import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { DynamicControlResolver } from "../dynamic-controls/dynamic-control-resolver.service";
 import { ControlInjectorPipe } from "../dynamic-controls/control-injector.pipe";
 import { comparatorFn } from "../dynamic-controls/base-dynamic-control";
-import { InputErrorComponent } from "../../../core/input-error/input-error.component";
 
 @Component({
   selector: 'app-dynamic-forms-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ControlInjectorPipe, InputErrorComponent],
+  imports: [CommonModule, ReactiveFormsModule, ControlInjectorPipe],
   templateUrl: './dynamic-forms-page.component.html',
   styleUrls: [
     '../../common-page.scss',

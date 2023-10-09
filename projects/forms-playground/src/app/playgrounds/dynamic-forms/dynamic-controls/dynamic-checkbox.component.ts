@@ -1,12 +1,10 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { BaseDynamicControl, dynamicControlResolver } from "./base-dynamic-control";
-import { ReactiveFormsModule } from "@angular/forms";
+import { BaseDynamicControl, dynamicControlResolver, sharedDynamicControlDeps } from "./base-dynamic-control";
 
 @Component({
   selector: 'app-dynamic-checkbox',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [...sharedDynamicControlDeps],
   viewProviders: [dynamicControlResolver],
   template: `
     <input
