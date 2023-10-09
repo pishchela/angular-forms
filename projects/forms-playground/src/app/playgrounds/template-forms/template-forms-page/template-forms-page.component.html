@@ -122,6 +122,7 @@
     <div class="form-field">
       <label for="confirm-password">Confirm password</label>
       <input
+        withoutValidationErrors
         [(ngModel)]="userInfo.confirmPassword"
         #confirmPassword="ngModel"
         name="confirm-password"
